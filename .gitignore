@@ -1,0 +1,22 @@
+# Ignorar entornos virtuales
+env/
+venv/
+django/
+django311/
+
+# Ignorar archivos compilados de Python
+*.pyc
+__pycache__/
+
+# Ignorar bases de datos locales
+db.sqlite3
+
+# Ignorar configuraciones sensibles
+.env
+secret_key.txt
+
+# Ignorar archivos de log
+*.log
+
+# Archivos estáticos generados
+staticfiles/
