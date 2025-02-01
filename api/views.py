@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 # Cargar el modelo previamente entrenado
-modelo = joblib.load("/home/andy/Escritorio/Universidad/Aprendisaje_A/ProyectoFinal/rfcv.pkl")
+modelo = joblib.load("/home/andy/Escritorio/Universidad/Aprendizaje_Automatico/ProyectoFinal/rf/rfcv2.pkl")
 
 # Inicializar SHAP explainer
 explainer = shap.Explainer(modelo)
@@ -21,31 +21,28 @@ explainer = shap.Explainer(modelo)
 # Etiquetas de las clases
 class_labels = {0: "Sin Defectos", 1: "Con Defectos"}
 
+# Nueva lista de características que espera el modelo
+FEATURE_NAMES = [
+    "LOC_BLANK", "BRANCH_COUNT", "LOC_CODE_AND_COMMENT", "LOC_COMMENTS",
+    "CYCLOMATIC_COMPLEXITY", "DESIGN_COMPLEXITY", "ESSENTIAL_COMPLEXITY",
+    "LOC_EXECUTABLE", "HALSTEAD_CONTENT", "HALSTEAD_DIFFICULTY","HALSTEAD_EFFORT",
+    "HALSTEAD_ERROR_EST", "HALSTEAD_LENGTH", "HALSTEAD_LEVEL",
+    "HALSTEAD_PROG_TIME", "HALSTEAD_VOLUME", "NUM_OPERANDS",
+    "NUM_OPERATORS", "NUM_UNIQUE_OPERANDS", "NUM_UNIQUE_OPERATORS",
+    "LOC_TOTAL"
+]
+
+
+
 class PrediccionView(APIView):
     def post(self, request):
         datos = request.data
         try:
             # Extraer las características desde el request
-            features = np.array([[  # Convertir a array de NumPy
-                datos["CYCLOMATIC_COMPLEXITY"],
-                datos["BRANCH_COUNT"],
-                datos["DESIGN_COMPLEXITY"],
-                datos["LOC_BLANK"],
-                datos["HALSTEAD_LENGTH"],
-                datos["HALSTEAD_CONTENT"],
-                datos["NUM_UNIQUE_OPERATORS"],
-                datos["HALSTEAD_PROG_TIME"],
-                datos["HALSTEAD_LEVEL"],
-                datos["NUM_OPERATORS"],
-            ]])
+            features = np.array([[datos[feature] for feature in FEATURE_NAMES]])
 
-            # Convertir a DataFrame de pandas
-            features_df = pd.DataFrame(features, columns=[
-                "CYCLOMATIC_COMPLEXITY", "BRANCH_COUNT", "DESIGN_COMPLEXITY",
-                "LOC_BLANK", "HALSTEAD_LENGTH", "HALSTEAD_CONTENT",
-                "NUM_UNIQUE_OPERATORS", "HALSTEAD_PROG_TIME",
-                "HALSTEAD_LEVEL", "NUM_OPERATORS"
-            ])
+            # Convertir a DataFrame de pandas con los nuevos nombres de características
+            features_df = pd.DataFrame(features, columns=FEATURE_NAMES)
 
             # Realizar la predicción
             prediccion = modelo.predict(features_df)
